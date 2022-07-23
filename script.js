@@ -32,6 +32,7 @@ const account4 = {
   movements: [430, 1000, 700, 50, 90],
   interestRate: 1,
   pin: 4444,
+  //username:"ss"
 };
 
 const accounts = [account1, account2, account3, account4];
@@ -62,6 +63,12 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+
+
+
+
+
+
 // /////////////////////////////////////////////////
 // /////////////////////////////////////////////////
 // // LECTURES
@@ -76,41 +83,99 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 // /////////////////////////////////////////////////
 
+const updateMovements = function (arr) {
+  arr.forEach(function (mov, index) {
 
+    if (mov > 0) {
+      let html = `<div class="movements__row">
+        <div class="movements__type movements__type--deposit">${index + 1} deposit</div>
+        <div class="movements__date">3 days ago</div>
+        <div class="movements__value">${mov}€</div>
+      </div>`
+      containerMovements.insertAdjacentHTML('beforeend', html)
+    }
+    else {
+      let html = `<div class="movements__row">
+      <div class="movements__type movements__type--withdrawal">
+        ${index + 1}withdrawal
+      </div>
+      <div class="movements__date">24/01/2037</div>
+      <div class="movements__value">${mov}€</div>
+    </div> `
 
-const createUserName = function(accs){
-  accs.forEach(function(acc){
-    acc.username = acc.owner // "chinmay deshpaade"
-    .split(' ') // ["chinmay" ,"deshpande"]
-    .map(function(name){
-      return name[0]  // ["c","d"]
-    }).join("").toLowerCase() // "cd"
+      containerMovements.insertAdjacentHTML('beforeend', html)
+    }
 
   })
+
+}
+
+const createUserName = function (accs) {
+  accs.forEach(obj => {
+    obj.username = obj.owner.split(' ').map(function (el) {
+      return el[0]
+    }).join('').toLowerCase()
+  });
+
 }
 createUserName(accounts)
 console.log(accounts)
 
 
-
-// Event handler one 
-
-btnLogin.addEventListener('click',function(e){
-  e.preventDefault()
-  let userInputUserName = inputLoginUsername.value
-  let userInputPin = inputLoginPin.value
-  let currentAccount = accounts.find(function(acc){
-    return acc.username == userInputUserName && acc.pin == userInputPin
+btnLogin.addEventListener('click', function (event) {
+  event.preventDefault()
+  let userInputUsername = inputLoginUsername.value
+  let userInputPassword = inputLoginPin.value
+  let currentAccount = accounts.find(function (el) {
+    return el.username == userInputUsername && el.pin == userInputPassword
   })
-  if(currentAccount){
+  //console.log(currentAccount)
+  if (currentAccount) {
     containerApp.style.opacity = "100"
     inputLoginUsername.value = ""
     inputLoginPin.value = ""
-    labelWelcome.textContent = `Welcome back ,${currentAccount.owner.split(' ')[0]}`
+    labelWelcome.textContent = `welcome ${currentAccount.owner.split(' ')[0]} !`
+    updateMovements(currentAccount.movements)
 
   }
 
+
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Event handler one 
+// btnLogin.addEventListener('click',function(e){
+//   e.preventDefault()
+//   let userInputUserName = inputLoginUsername.value
+//   let userInputPin = inputLoginPin.value
+//   let currentAccount = accounts.find(function(acc){
+//     return acc.username == userInputUserName && acc.pin == userInputPin
+//   })
+//   if(currentAccount){
+//     containerApp.style.opacity = "100"
+//     inputLoginUsername.value = ""
+//     inputLoginPin.value = ""
+//     labelWelcome.textContent = `Welcome back ,${currentAccount.owner.split(' ')[0]}`
+
+//   }
+
+// })
 
 
 
