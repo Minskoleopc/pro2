@@ -62,12 +62,7 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-
-
-
-
-
-
+let currentAccount = undefined
 
 // /////////////////////////////////////////////////
 // /////////////////////////////////////////////////
@@ -83,32 +78,65 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 // /////////////////////////////////////////////////
 
-const updateMovements = function (arr) {
-  arr.forEach(function (mov, index) {
 
-    if (mov > 0) {
-      let html = `<div class="movements__row">
-        <div class="movements__type movements__type--deposit">${index + 1} deposit</div>
+const updateUI = function(acc){
+  updateMovements(acc)
+  updateSummary(acc)
+  updateBal(acc)
+}
+
+
+
+
+
+const updateMovements = function (acc) {
+  containerMovements.innerHTML = ""
+  acc.movements.forEach(function (mov, index) {
+    let type = mov > 0 ? 'deposit' : 'withdrawal'
+    let html = `<div class="movements__row">
+        <div class="movements__type movements__type--${type}">${index + 1}${type}</div>
         <div class="movements__date">3 days ago</div>
         <div class="movements__value">${mov}€</div>
       </div>`
-      containerMovements.insertAdjacentHTML('beforeend', html)
-    }
-    else {
-      let html = `<div class="movements__row">
-      <div class="movements__type movements__type--withdrawal">
-        ${index + 1}withdrawal
-      </div>
-      <div class="movements__date">24/01/2037</div>
-      <div class="movements__value">${mov}€</div>
-    </div> `
-
-      containerMovements.insertAdjacentHTML('beforeend', html)
-    }
+    containerMovements.insertAdjacentHTML('beforeend', html)
 
   })
 
 }
+
+const updateSummary = function(acc){
+  // income
+  let income = acc.movements.filter(function(el){
+    return el > 0
+  }).reduce(function(acc,el){
+    return acc + el
+  },0)
+  console.log(income)
+  labelSumIn.textContent = `${income}€`
+
+
+  let withdrawal = acc.movements.filter(function(el){
+    return el < 0
+  }).reduce(function(acc,el){
+    return acc + el
+  },0)
+  console.log(withdrawal)
+  labelSumOut.textContent = `${withdrawal}€`
+
+  let interest = income  * 0.10
+  acc.interest = interest
+  labelSumInterest.textContent = `${interest}€`
+
+}
+
+const  updateBal = function(acc){
+  let sum = acc.movements.reduce(function(acc,el){
+    return acc + el
+  },0)
+  labelBalance.textContent = `${acc.interest+sum}€`
+  
+}
+
 
 const createUserName = function (accs) {
   accs.forEach(obj => {
@@ -122,11 +150,13 @@ createUserName(accounts)
 console.log(accounts)
 
 
+// login event
+
 btnLogin.addEventListener('click', function (event) {
   event.preventDefault()
   let userInputUsername = inputLoginUsername.value
   let userInputPassword = inputLoginPin.value
-  let currentAccount = accounts.find(function (el) {
+    currentAccount = accounts.find(function (el) {
     return el.username == userInputUsername && el.pin == userInputPassword
   })
   //console.log(currentAccount)
@@ -135,14 +165,24 @@ btnLogin.addEventListener('click', function (event) {
     inputLoginUsername.value = ""
     inputLoginPin.value = ""
     labelWelcome.textContent = `welcome ${currentAccount.owner.split(' ')[0]} !`
-    updateMovements(currentAccount.movements)
-
+    updateUI(currentAccount)
   }
 
 
 })
 
 
+// request loan
+
+btnLoan.addEventListener("click",function(event){
+    event.preventDefault()
+    let text = inputLoanAmount.value
+    let mov = Number(text)
+    currentAccount.movements.push(mov)
+    updateUI(currentAccount)
+    inputLoanAmount.value=""
+
+})
 
 
 
