@@ -79,7 +79,7 @@ let currentAccount = undefined
 // /////////////////////////////////////////////////
 
 
-const updateUI = function(acc){
+const updateUI = function (acc) {
   updateMovements(acc)
   updateSummary(acc)
   updateBal(acc)
@@ -104,37 +104,37 @@ const updateMovements = function (acc) {
 
 }
 
-const updateSummary = function(acc){
+const updateSummary = function (acc) {
   // income
-  let income = acc.movements.filter(function(el){
+  let income = acc.movements.filter(function (el) {
     return el > 0
-  }).reduce(function(acc,el){
+  }).reduce(function (acc, el) {
     return acc + el
-  },0)
+  }, 0)
   console.log(income)
   labelSumIn.textContent = `${income}€`
 
 
-  let withdrawal = acc.movements.filter(function(el){
+  let withdrawal = acc.movements.filter(function (el) {
     return el < 0
-  }).reduce(function(acc,el){
+  }).reduce(function (acc, el) {
     return acc + el
-  },0)
+  }, 0)
   console.log(withdrawal)
   labelSumOut.textContent = `${withdrawal}€`
 
-  let interest = income  * 0.10
+  let interest = income * 0.10
   acc.interest = interest
   labelSumInterest.textContent = `${interest}€`
 
 }
 
-const  updateBal = function(acc){
-  let sum = acc.movements.reduce(function(acc,el){
+const updateBal = function (acc) {
+  let sum = acc.movements.reduce(function (acc, el) {
     return acc + el
-  },0)
-  labelBalance.textContent = `${acc.interest+sum}€`
-  
+  }, 0)
+  labelBalance.textContent = `${acc.interest + sum}€`
+  acc.currentBalance = sum
 }
 
 
@@ -156,7 +156,7 @@ btnLogin.addEventListener('click', function (event) {
   event.preventDefault()
   let userInputUsername = inputLoginUsername.value
   let userInputPassword = inputLoginPin.value
-    currentAccount = accounts.find(function (el) {
+  currentAccount = accounts.find(function (el) {
     return el.username == userInputUsername && el.pin == userInputPassword
   })
   //console.log(currentAccount)
@@ -167,22 +167,72 @@ btnLogin.addEventListener('click', function (event) {
     labelWelcome.textContent = `welcome ${currentAccount.owner.split(' ')[0]} !`
     updateUI(currentAccount)
   }
-
-
 })
-
-
 // request loan
-
-btnLoan.addEventListener("click",function(event){
-    event.preventDefault()
-    let text = inputLoanAmount.value
-    let mov = Number(text)
-    currentAccount.movements.push(mov)
-    updateUI(currentAccount)
-    inputLoanAmount.value=""
+btnLoan.addEventListener("click", function (event) {
+  event.preventDefault()
+  let text = inputLoanAmount.value
+  let mov = Number(text)
+  currentAccount.movements.push(mov)
+  updateUI(currentAccount)
+  inputLoanAmount.value = ""
 
 })
+
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault()
+  let receiverUserInput = inputTransferTo.value
+  let amount = Number(inputTransferAmount.value)
+  let actualReceiverUser = accounts.find(function (el) {
+    return el.username == receiverUserInput
+  })
+  inputTransferTo.value = ""
+  inputTransferAmount.value = ""
+
+
+  if (
+    actualReceiverUser &&
+    amount > 0 &&
+    currentAccount.currentBalance > amount &&
+    receiverUserInput.username !== currentAccount.username
+  ) {
+    currentAccount.movements.push(-amount)
+    actualReceiverUser.movements.push(amount)
+    updateUI(currentAccount)
+
+  }
+
+
+})
+
+
+btnClose.addEventListener('click', function (event) {
+  console.log('hello')
+  event.preventDefault()
+  let userInputDelete = inputCloseUsername.value
+  let userInputPin = Number(inputClosePin.value)
+  console.log(userInputDelete)
+  console.log(userInputPin)
+  console.log(currentAccount.username)
+  console.log(currentAccount.pin)
+
+  if (currentAccount.username == userInputDelete && currentAccount.pin == userInputPin) {
+      console.log("in")
+    let deleteUserIndex = accounts.findIndex(function (el) {
+      return el.username == userInputDelete
+    })
+
+    if (deleteUserIndex >= 0) {
+      accounts.splice(deleteUserIndex, 1)
+      containerApp.style.opacity = "0";
+    }
+
+  }
+
+})
+
+
 
 
 
